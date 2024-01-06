@@ -36,6 +36,15 @@ app.use(require('./controllers/recipes'));
 app.use(require('./controllers/myrecipes'));
 app.use(require('./controllers/searchRecipe'));
 
+app.get('/' , (req, res) => {
+    try {
+        return res.status(200).json({message : "Server is live"});
+    }
+    catch(err) {
+        return res.status(200).json({message : err.message});
+    }
+})
+
 app.post('/', async (req, res) => {
 
     try {
