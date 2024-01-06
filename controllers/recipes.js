@@ -37,16 +37,15 @@ recipes.post('/getrecipe', async (req, res) => {
     try {
         const recipeId = req.body.recipeId;
         const savedRecipe = await Recipe.findById({_id : recipeId})
-        // then(savedRecipe){
+        .then(savedRecipe => {
             if(savedRecipe)
                 return res.status(200).json(savedRecipe);
-
-            return res.status(200).json({message : "Unable to fetch at the moment"});
-        // })
-        // .catch(err => {
-        //     console.log("There was an error");
-        //     return res.status(200).json({message : "There was an error"});
-        // })
+            else
+                return res.status(200).json({message : "Unable to fetch at the moment"});
+        })
+        .catch(err => {
+            return res.status(200).json({message : "There was an error"});
+        })
     }
     catch(err) {
         // console.log(err.message);
@@ -67,7 +66,7 @@ recipes.post('/addrecipe', async (req, res) => {
         jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
 
             if (err){
-                res.status(200).json({err : err.message })
+                return res.status(200).json({err : err.message })
             }
 
             else {
@@ -84,15 +83,19 @@ recipes.post('/addrecipe', async (req, res) => {
                         createdOn : Date.now()
                     })
 
-                    newRecipe.save().then(saved => {
+                    newRecipe.save()
+                    .then(saved => {
                         if(!saved)
                             return res.status(200).json({message : "There has been some issue"});
                         console.log("SAVED");
                         return res.status(200).json({message:"Recipe saved", id : saved._id});
                     })
+                    .catch(err => {
+                        return res.status(200).json({message:"There seems to be an error"});
+                    })
                 }
                 else 
-                    res.status(200).json({ message: "User not found" });
+                    return res.status(200).json({ message: "User not found" });
             }
         })
     }
@@ -110,12 +113,12 @@ recipes.delete('/deleterecipe' , async (req, res) => {
 
         const token = JSON.parse(req.body.token);
         if (!token)
-            res.status(200).json({ authorized: false })
+            return res.status(200).json({ authorized: false })
 
         jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
 
             if (err)
-                res.status(200).json({err : err.message })
+                return res.status(200).json({err : err.message })
 
             else {
                 await Recipe.findById(id)
@@ -127,6 +130,9 @@ recipes.delete('/deleterecipe' , async (req, res) => {
                     .then(() => {
                         return res.status(200).json({message : "Recipe deleted"})
                     })
+                })
+                .catch(err => {
+                    return res.status(200).json({message : "There was an error"});
                 })
             }
         })
@@ -144,7 +150,7 @@ recipes.put('/updaterecipe', async (req, res) => {
 
         const token = JSON.parse(req.body.token);
         if (!token)
-            res.status(201).json({ authorized: false })
+            return res.status(201).json({ authorized: false })
 
         jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
 
@@ -166,6 +172,9 @@ recipes.put('/updaterecipe', async (req, res) => {
                     .then(() => {
                         return res.status(200).json({message : "Recipe updated"})
                     })
+                    .catch(err => {
+                        return res.status(200).json({message : "There was an error"});
+                    })
                 })
             }
         })
@@ -182,7 +191,7 @@ recipes.post('/checkliked' , async (req, res) => {
 
         const token = JSON.parse(req.body.token);
         if (!token)
-            res.status(200).json({ likedByMe: false })
+            return res.status(200).json({ likedByMe: false })
 
         jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
             if (err)
@@ -213,7 +222,7 @@ recipes.post('/changeliked' , async (req, res) => {
 
         const token = JSON.parse(req.body.token);
         if (!token)
-            res.status(200).json({ likedByMe: false })
+            return res.status(200).json({ likedByMe: false })
 
         jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
             if (err)
@@ -230,6 +239,12 @@ recipes.post('/changeliked' , async (req, res) => {
                             .then(updatedUser => {
                                 return res.status(200).json({likedByMe : false});
                             })
+                            .catch(err => {
+                                return res.status(200).json({message : "There was an error"});
+                            })
+                        })
+                        .catch(err => {
+                            return res.status(200).json({message : "There was an error"});
                         })
                     }
                     else {
@@ -240,6 +255,9 @@ recipes.post('/changeliked' , async (req, res) => {
                             .then(updatedUser => {
                                 return res.status(200).json({likedByMe : true});
                             })
+                        })
+                        .catch(err => {
+                            return res.status(200).json({message : "There was an error"});
                         })
                     }
                 }

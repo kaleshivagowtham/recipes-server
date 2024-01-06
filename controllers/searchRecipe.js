@@ -14,9 +14,16 @@ search.post('/search', async (req, res) => {
                     { tags: { $in: [searchText] } },
                     { ingredients: { $in: [searchText] } },
                 ],
-            });
-        if(searchResult)
-            return res.status(200).json(searchResult);
+            })
+        .then (searchResult => {
+            if(searchResult)
+                return res.status(200).json(searchResult);
+            else
+                return res.status(200).json({message : "There was an error"});    
+        })
+        .catch(err => {
+            return res.status(200).json({message : "There was an error"});
+        })
     }
     catch(err) {
         // console.log(err);

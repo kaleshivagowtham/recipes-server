@@ -12,11 +12,16 @@ recipes.post('/getwriterrecipes', async (req, res) => {
     try {
         const writerId = req.body.writerId;
 
-        const recipes = await Recipe.find({writtenBy : writerId});
-        if(recipes) 
-            return res.status(200).json(recipes);
-        else
-            return res.status(200).json({message : "There seems to be some error"});
+        const recipes = await Recipe.find({writtenBy : writerId})
+        .then ( recipes => {
+            if(recipes)
+                return res.status(200).json(recipes);
+            else
+                return res.status(200).json({message : "There was an error"});
+        })
+        .catch(err => {
+            return res.status(200).json({message : "There was an error"});
+        })
     }
     catch(err) {
         // console.log(err.message);
@@ -30,7 +35,7 @@ recipes.post('/checkifwriter' , (req, res) => {
         const writerId = req.body.writtenBy;
         const token = JSON.parse(req.body.token);
         if (!token)
-            res.status(200).json({ authorized: false })
+           return  res.status(200).json({ authorized: false })
 
         jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
 

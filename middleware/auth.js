@@ -7,7 +7,7 @@ module.exports.userVerification = async (req, res, next) => {
     try {
         const token = req.body.token
         if (!token)
-            res.status(401).json({ authorized: false })
+            return res.status(401).json({ authorized: false })
 
         jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
             if (err) {

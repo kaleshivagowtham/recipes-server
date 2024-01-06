@@ -53,13 +53,17 @@ app.post('/', async (req, res) => {
                 if (err) {
                     return res.status(200).json({ authorized: false, err : err })
                 } else {
-                const user = await User.findById(data.id);
-                if (user) {
-                    // console.log(user);
-                    return res.status(200).json({authorized:true ,user: user})
-                }
-                else 
-                    return res.status(200).json({ authorized: false })
+                    const user = await User.findById(data.id)
+                    .then (user => {
+                        if (user) {
+                            return res.status(200).json({authorized:true ,user: user})
+                        }
+                        else 
+                            return res.status(200).json({ authorized: false })
+                    })
+                    .catch(err => {
+                        return res.status(200).json({message : "There seems to be some error"});
+                    })
                 }
             })
         }

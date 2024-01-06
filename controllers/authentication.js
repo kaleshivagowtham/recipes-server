@@ -26,6 +26,9 @@ authentication.post('/signup' , (req, res) => {
             const token = createSecretToken(user._id);
             return res.status(200).json({message : "Signin successful", user : user, token : token});
         })
+        .catch(err => {
+            return res.status(200).json({message : "There was an error"});
+        })
     })
 })
 
@@ -41,6 +44,9 @@ authentication.post('/login' , async (req, res) => {
             return res.status(200).json({message :"Login successful", savedUser : savedUser, token: token});
         }
         return res.status(200).json("Login unsuccessful");
+    })
+    .catch(err => {
+        return res.status(200).json({message : "There was an error"});
     })
 })
 
