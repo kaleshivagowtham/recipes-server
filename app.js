@@ -66,5 +66,5 @@ app.post('/', async (req, res) => {
 
 
 app.listen(process.env.PORT || 5000, () => {
-    console.log(`server started on PORT no: ${process.env.PORT}`);
+    console.log(`server started on PORT no: ${process.env.PORT || 5000}`);
 })
