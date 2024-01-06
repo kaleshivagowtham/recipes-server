@@ -1,0 +1,8 @@
+# Ignore node modules
+node_modules
+
+# Ignore the api keys
+.env
+
+# API testing
+request.rest
