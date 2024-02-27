@@ -11,8 +11,9 @@ search.post('/search', async (req, res) => {
 
         const searchResult = await Recipe.find({
                 $or: [
-                    { tags: { $in: [searchText] } },
-                    { ingredients: { $in: [searchText] } },
+                    {title : {$regex : searchText, $options : 'i'}},
+                    { tags: { $regex : searchText, $options : 'i'} },
+                    { ingredients: {$regex : searchText, $options : 'i'} }
                 ],
             })
         .then (searchResult => {

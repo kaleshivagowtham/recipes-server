@@ -12,7 +12,6 @@ recipes.get('/getallrecipe' , async (req, res) => {
     try {
         await Recipe.find().limit(10)
         .then(recipes => {
-            // console.log(recipes);
             if(recipes)
                 return res.status(200).json(recipes);
             else
@@ -36,6 +35,7 @@ recipes.post('/getrecipe', async (req, res) => {
     
     try {
         const recipeId = req.body.recipeId;
+
         const savedRecipe = await Recipe.findById({_id : recipeId})
         .then(savedRecipe => {
             if(savedRecipe)
@@ -59,13 +59,13 @@ recipes.post('/addrecipe', async (req, res) => {
         const {title, titleImg, paras, tags, ingredients, likedBy, createdOn} = req.body.newRecipe;
 
         const token = JSON.parse(req.body.token);
-
         if (!token)
-            res.status(200).json({ authorized: false })
+            return res.status(200).json({ authorized: false });
 
         jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
 
             if (err){
+                console.log(err.message);
                 return res.status(200).json({err : err.message })
             }
 
@@ -76,6 +76,7 @@ recipes.post('/addrecipe', async (req, res) => {
                     const newRecipe = new Recipe({
                         writtenBy : data.id,
                         title : title,
+                        titleImg : titleImg,
                         paras : paras,
                         tags : tags,
                         ingredients : ingredients,
@@ -87,7 +88,6 @@ recipes.post('/addrecipe', async (req, res) => {
                     .then(saved => {
                         if(!saved)
                             return res.status(200).json({message : "There has been some issue"});
-                        console.log("SAVED");
                         return res.status(200).json({message:"Recipe saved", id : saved._id});
                     })
                     .catch(err => {
@@ -147,7 +147,6 @@ recipes.put('/updaterecipe', async (req, res) => {
 
     try {
         const { _id, title, titleImg, paras, tags, ingredients} = req.body.updateRecipe;
-
         const token = JSON.parse(req.body.token);
         if (!token)
             return res.status(201).json({ authorized: false })
@@ -162,15 +161,16 @@ recipes.put('/updaterecipe', async (req, res) => {
                 .then(savedRecipe => {
                     if(savedRecipe.writtenBy != data.id)
                         return res.status(200).json({authorized : false,message : "Unauthorized request"})
-
+                    const deleteImgUrl = savedRecipe.titleImg;
                     Recipe.updateOne({_id : _id}, {
-                        title : title,
-                        paras : paras,
-                        tags : tags,
-                        ingredients : ingredients,
+                        title,
+                        paras,
+                        tags,
+                        titleImg,
+                        ingredients
                     })
                     .then(() => {
-                        return res.status(200).json({message : "Recipe updated"})
+                        return res.status(200).json({message : "Recipe updated", deleteImgUrl})
                     })
                     .catch(err => {
                         return res.status(200).json({message : "There was an error"});

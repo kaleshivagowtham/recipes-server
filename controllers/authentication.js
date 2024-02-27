@@ -9,7 +9,7 @@ const authentication = express();
 
 authentication.post('/signup' , (req, res) => {
 
-    const {name, email, password} = req.body.signupCreds;
+    const {name, email, password, profilePic} = req.body.signupCreds;
 
     User.findOne({email : email})
     .then(savedUser => {
@@ -18,7 +18,8 @@ authentication.post('/signup' , (req, res) => {
         const user = new User({
             name : name,
             email : email,
-            password : password
+            password : password,
+            profilePic
         })
         user.save().then (saved => {
             if(!saved)
