@@ -10,7 +10,7 @@ const recipes = express();
 recipes.get('/getallrecipe' , async (req, res) => {
 
     try {
-        await Recipe.find().limit(10)
+        await Recipe.find().limit(10).select('-_id')
         .then(recipes => {
             if(recipes)
                 return res.status(200).json(recipes);
@@ -34,9 +34,8 @@ recipes.get('/getallrecipe' , async (req, res) => {
 recipes.post('/getrecipe', async (req, res) => {
     
     try {
-        const recipeId = req.body.recipeId;
-
-        const savedRecipe = await Recipe.findById({_id : recipeId})
+        const {recipeTitle} = req.body;
+        const savedRecipe = await Recipe.findOne({title : recipeTitle}).select('-_id')
         .then(savedRecipe => {
             if(savedRecipe)
                 return res.status(200).json(savedRecipe);
@@ -56,7 +55,7 @@ recipes.post('/getrecipe', async (req, res) => {
 recipes.post('/addrecipe', async (req, res) => {
 
     try {
-        const {title, titleImg, paras, tags, ingredients, likedBy, createdOn} = req.body.newRecipe;
+        const {title, titleImg, paras, tags, ingredients, likedBy} = req.body.newRecipe;
 
         const token = JSON.parse(req.body.token);
         if (!token)
@@ -109,7 +108,7 @@ recipes.delete('/deleterecipe' , async (req, res) => {
 
     try {
 
-        const id = req.body.id;
+        const {recipeTitle} = req.body;
 
         const token = JSON.parse(req.body.token);
         if (!token)
