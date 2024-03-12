@@ -35,7 +35,7 @@ recipes.post('/getrecipe', async (req, res) => {
     
     try {
         const {recipeTitle} = req.body;
-        const savedRecipe = await Recipe.findOne({title : recipeTitle}).select('-_id')
+        const savedRecipe = await Recipe.findOne({title : recipeTitle.replace(/-/g,' ')}).select('-_id -writtenBy')
         .then(savedRecipe => {
             if(savedRecipe)
                 return res.status(200).json(savedRecipe);
@@ -43,12 +43,12 @@ recipes.post('/getrecipe', async (req, res) => {
                 return res.status(200).json({message : "Unable to fetch at the moment"});
         })
         .catch(err => {
-            return res.status(200).json({message : "There was an error"});
+            return res.status(200).json({message : err.message});
         })
     }
     catch(err) {
         // console.log(err.message);
-        return res.status(200).json({message : "there was an error"});
+        return res.status(200).json({message : err.message});
     }
 });
 
@@ -74,6 +74,7 @@ recipes.post('/addrecipe', async (req, res) => {
                 if (user) {
                     const newRecipe = new Recipe({
                         writtenBy : data.id,
+                        authorName : user.name,
                         title : title,
                         titleImg : titleImg,
                         paras : paras,
